@@ -4,6 +4,9 @@
 
 Here i will provide some instructions on how to collaborate in this project. When the instructions are followed, it will make everyone's work much easier.
 
+
+- Fork the repo and clone it.
+- Do npm install to install all the packages
 - Always pull latest changes from the `main` branch before working on a new task.
 - All pull requests are made to the `main` branch.
 - All pull requests must be reviewed first before merging.
