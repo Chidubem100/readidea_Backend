@@ -1,4 +1,4 @@
-const {attachCookiesToResponse,verifyToken,createJwtToken} = require('../utils/index');
+const {attachCookiesToResponse} = require('../utils/index');
 const User = require('../models/User');
 const CustomApiError = require('../errors/index');
 const {StatusCodes} = require('http-status-codes');
@@ -27,7 +27,9 @@ const register = async(req,res) =>{
 
 
     const user = await User.create({email, username, password, role});
+
     console.log(user)
+    
     const tokenUser = {username: user.username, email: user.email, role: user.role, userId: user._id};
 
     attachCookiesToResponse({res, user:tokenUser});
@@ -36,11 +38,40 @@ const register = async(req,res) =>{
 }
 
 const login = async(req,res) =>{
-    res.send('login route')
+    const {email,password} = req.body;
+
+    if(!email||!password){
+        throw new CustomApiError.BadRequestError('Please provide the need values');
+    }
+
+    const user = await User.findOne({email});
+    if(!user){
+        throw new CustomApiError.NotFoundError(`User doesn't exist, Please sign up`);
+    }
+
+    const isPasswordCorrect = await user.comparePassword(password);
+    if(!isPasswordCorrect){
+        throw new CustomApiError.BadRequestError(`Invalid password, check and try again`)
+    }
+
+    const userToken = {username: user.username, email: user.email, role: user.role, userId: user._id};
+    attachCookiesToResponse({res, user:userToken});
+
+    res.status(StatusCodes.OK).json({sucess:true, user:userToken});
+    
+    // check if the values are provided
+    // find the user with the email and check it exist
+    // compare the password using the compare function created in the model
+    // create usertoken and attach it to the cookies
+    // send response
 }
 
 const logout = async(req,res) =>{
-    res.send('logout route')
+    res.cookie('token', 'logout',{
+        httpOnly: true,
+        expires: new Date(Date.now()),
+    });
+    res.status(StatusCodes.OK).json({msg:'You have successfully logged out'})
 }
 
 module.exports = {
