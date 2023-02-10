@@ -11,6 +11,8 @@ const app = express();
 
 // Routes
 const authRoute = require('./routes/authRoute');
+// ROUTES
+const postRoutes = require('./routes/posts');
 
 
 // OTHER PACKAGES
@@ -18,8 +20,7 @@ const connectDB = require('./db/connectDB');
 const errorHandler = require('./middlewares/errorHandler');
 const notFound = require('./middlewares/notfound');
 
-// ROUTES
-const postRoutes = require('./routes/posts');
+
 
 
 
@@ -33,11 +34,6 @@ app.use(helment());
 // USE ROUTES
 // localhost:5000/api/v1/posts
 app.use('/api/v1/posts', postRoutes);
-
-
-
-
-
 // Routes
 app.use('/api/v1/auth', authRoute);
 

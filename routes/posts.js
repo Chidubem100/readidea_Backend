@@ -1,6 +1,6 @@
 const router = require('express').Router(); 
 const postController = require('../controllers/postController');
-
+const checkAuth = require('../utils/checkPermissions')
 // Create post
 router.post('/', postController.createPost);
 
@@ -14,7 +14,7 @@ router.get('/:id', postController.getPost);
 router.patch('/:id', postController.updatePost)
 
 // Delete post
-router.delete('/:id', postController.deletePost);
+// router.delete('/:id', postController.deletePost);
 
 // Get user post
 router.get('/user/:id', postController.getUserPost);
