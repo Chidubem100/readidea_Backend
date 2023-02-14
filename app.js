@@ -12,7 +12,7 @@ const app = express();
 // Routes
 const authRoute = require('./routes/authRoute');
 // ROUTES
-const postRoutes = require('./routes/posts');
+const postRoutes = require('./routes/postRoute');
 
 
 // OTHER PACKAGES
