@@ -11,12 +11,16 @@ const app = express();
 
 // Routes
 const authRoute = require('./routes/authRoute');
+// ROUTES
+const postRoutes = require('./routes/postRoute');
 
 
 // OTHER PACKAGES
 const connectDB = require('./db/connectDB');
 const errorHandler = require('./middlewares/errorHandler');
 const notFound = require('./middlewares/notfound');
+
+
 
 
 
@@ -27,8 +31,9 @@ app.use(cookieParser(process.env.JWT_SECRET));
 app.use(cors());
 app.use(helment());
 
-
-
+// USE ROUTES
+// localhost:5000/api/v1/posts
+app.use('/api/v1/posts', postRoutes);
 // Routes
 app.use('/api/v1/auth', authRoute);
 
