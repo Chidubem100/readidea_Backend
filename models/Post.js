@@ -26,10 +26,11 @@ const PostSchema = new Schema({
     },
     genres : {
         type: String,
-        enum: ['fiction', 'non-fiction', 'biography', 'poetry', 'drama', 'other'],
+        enum: ['fiction', 'non-fiction', 'biography', 'poetry', 'drama', 'others'],
     },
-    user : {
-        type: Schema.Types.ObjectId,
+    user: {
+        type: mongoose.Types.ObjectId,
+        // type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },

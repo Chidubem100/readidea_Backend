@@ -1,4 +1,5 @@
 const router = require('express').Router(); 
+const {authenticate} = require('../middlewares/authenticateMiddleware');
 
 const {
     createPost,
@@ -9,13 +10,14 @@ const {
     deletePost
 } = require('../controllers/postController');
 
+router.route('/').get(getAllPosts).post(authenticate,createPost);
+router.route('/userpost').get(authenticate,getUserPost)
+router.route('/:id')
+    .get(authenticate,getPost)
+    .patch(authenticate,updatePost)
+    .delete(authenticate,deletePost)
 
-router.post('/', createPost);
-router.get('/', getAllPosts);
-router.get('/:id', getPost);
-router.patch('/:id', updatePost)
-router.delete('/:id', deletePost);
-router.get('/user/:id', getUserPost);
+// router.route('/userpost').get(authenticate,getUserPost)
 
 // Upload image using Cloudinary
 
