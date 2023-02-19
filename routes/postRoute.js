@@ -11,13 +11,12 @@ const {
 } = require('../controllers/postController');
 
 router.route('/').get(getAllPosts).post(authenticate,createPost);
-router.route('/userpost').get(authenticate,getUserPost)
+router.route('/userpost').get(authenticate,getUserPost);
+
 router.route('/:id')
     .get(authenticate,getPost)
     .patch(authenticate,updatePost)
     .delete(authenticate,deletePost)
-
-// router.route('/userpost').get(authenticate,getUserPost)
 
 // Upload image using Cloudinary
 

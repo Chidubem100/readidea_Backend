@@ -62,13 +62,22 @@ const getAllPosts = async (req, res) => {
 
 // Get single post
 const getPost = async (req, res) => {
-
     const {
-        params: {id: postId},
-        user: {userId}
-    } = req
+        user: { userId },
+        params: { id: postId },
+    } = req;
+    
+    // const job = await Job.findOne({
+        // _id: jobId,
+        // createdBy: userId,
+    // });
 
-    const post = await Post.findOne({_id: postId})
+    // const {
+    //     params: {id: postId},
+    //     createdBy: {userId}
+    // } = req
+
+    const post = await Post.findOne({_id: postId, createdBy:userId})
 
     if(!post) {    
         throw new CustomApiError.NotFoundError(`Post not found with id ${postId}`);    
@@ -85,11 +94,11 @@ const updatePost = async (req, res) => {
         user: {userId}
     } = req
     
-    const post = await Post.findByIdAndUpdate({_id: postId,userId}, req.body,{
+    const post = await Post.findByIdAndUpdate({_id: postId,createdBy:userId}, req.body,{
         new:true,
         runValidators: true
     });
-
+    console.log(userId)
 
     if(!post){
         throw new CustomApiError.BadRequestError(`Post not found with id ${postId}`)
@@ -102,26 +111,28 @@ const getUserPost = async (req, res) => {
     const {
         params: {id: postId},
         user: {userId}
-    } = req
+    } = req;
 
-    const posts = await Post.find({_id:postId, user:userId});
+    const posts = await Post.find({createdBy:userId});
     res.status(StatusCodes.OK).json({success: true, posts});
 }
 
 const deletePost = async (req, res) => {
-    const {
-        params: {id: postId},
-        user: {userId}
-    } = req
+    // const {
+    //     user: {userId},
+    //     params: {id: postId},
+        
+    // } = req;
 
-    const post = await Post.findByIdAndDelete({_id:postId, user:userId})
+    const post = await Post.findByIdAndDelete(req.params.id);
     
-    if(!post) {
-        throw new CustomApiError.NotFoundError('Post not found with id ' + postId);
-    }
-
+    console.log(post.user)
+    // console.log(req.user.userId)
+    // if(!post) {
+    //     throw new CustomApiError.NotFoundError('Post not found with id ' + postId);
+    // }
+    
     res.status(StatusCodes.OK).json({success: true, message: 'Post deleted successfully'});
-
 }
 
 module.exports = {
