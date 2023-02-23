@@ -1,7 +1,6 @@
 require('dotenv').config();
 require('express-async-errors');
 
-
 const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -11,7 +10,6 @@ const app = express();
 
 // Routes
 const authRoute = require('./routes/authRoute');
-// ROUTES
 const postRoutes = require('./routes/postRoute');
 
 
@@ -19,9 +17,6 @@ const postRoutes = require('./routes/postRoute');
 const connectDB = require('./db/connectDB');
 const errorHandler = require('./middlewares/errorHandler');
 const notFound = require('./middlewares/notfound');
-
-
-
 
 
 // APP CONFIG
@@ -32,12 +27,10 @@ app.use(cors());
 app.use(helment());
 
 // USE ROUTES
-// localhost:5000/api/v1/posts
-app.use('/api/v1/posts', postRoutes);
-// Routes
+app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/auth', authRoute);
 
-
+// Home route
 app.get('/', (req,res) =>{
     console.log(req.signedCookies)
     res.send('<h1>Read idea Api</h1><a href>Documentation</a>')
@@ -46,8 +39,6 @@ app.get('/', (req,res) =>{
 // errorHandler and notFound middlewares
 app.use(errorHandler);
 app.use(notFound);
-
-
 
 // server set_up()
 const port = process.env.PORT || 5000
@@ -64,8 +55,4 @@ const start = async() =>{
 
 start();
 
-
-// app.listen(port,  () =>{
-    // console.log('server is test running!')
-// });
 
