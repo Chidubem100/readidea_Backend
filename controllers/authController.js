@@ -34,7 +34,7 @@ const register = async(req,res) =>{
 
     attachCookiesToResponse({res, user:tokenUser});
 
-    res.status(StatusCodes.CREATED).json({sucess: true, user:tokenUser}); 
+    res.status(StatusCodes.CREATED).json({success: true, user:tokenUser}); 
 }
 
 const login = async(req,res) =>{
@@ -57,7 +57,7 @@ const login = async(req,res) =>{
     const userToken = {username: user.username, email: user.email, role: user.role, userId: user._id};
     attachCookiesToResponse({res, user:userToken});
 
-    res.status(StatusCodes.OK).json({sucess:true, user:userToken});
+    res.status(StatusCodes.OK).json({success:true, user:userToken});
     
     // check if the values are provided
     // find the user with the email and check it exist

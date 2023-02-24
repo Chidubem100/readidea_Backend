@@ -94,7 +94,7 @@ const updatePost = async (req, res) => {
         throw new CustomApiError.UnauthorizedError('UNAUTHORIZED');
     }
 
-    const updatedPost = await Job.findByIdAndUpdate({_id: postId, user:userId},req.body,{
+    const updatedPost = await Post.findByIdAndUpdate({_id: postId, user:userId},req.body,{
         runValidators: true,
         new: true
     });
