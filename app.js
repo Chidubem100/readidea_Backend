@@ -11,6 +11,7 @@ const app = express();
 // Routes
 const authRoute = require('./routes/authRoute');
 const postRoutes = require('./routes/postRoute');
+const commentRoute = require('./routes/commentRoute');
 
 
 // OTHER PACKAGES
@@ -29,6 +30,7 @@ app.use(helment());
 // USE ROUTES
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/auth', authRoute);
+app.use('/api/v1/comment', commentRoute);
 
 // Home route
 app.get('/', (req,res) =>{
