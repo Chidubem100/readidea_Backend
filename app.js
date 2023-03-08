@@ -11,7 +11,7 @@ const app = express();
 // Routes
 const authRoute = require('./routes/authRoute');
 const postRoutes = require('./routes/postRoute');
-
+const userRoutes =require('./routes/userRoute');
 
 // OTHER PACKAGES
 const connectDB = require('./db/connectDB');
@@ -29,6 +29,7 @@ app.use(helment());
 // USE ROUTES
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/auth', authRoute);
+app.use('/api/v1/user', userRoutes);
 
 // Home route
 app.get('/', (req,res) =>{
