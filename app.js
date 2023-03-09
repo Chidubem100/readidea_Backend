@@ -11,12 +11,9 @@ const app = express();
 // Routes
 const authRoute = require('./routes/authRoute');
 const postRoutes = require('./routes/postRoute');
-<<<<<<< HEAD
 const commentRoute = require('./routes/commentRoute');
-
-=======
 const userRoutes =require('./routes/userRoute');
->>>>>>> e961795e48470651e60137757c92cb74b3ba5762
+
 
 // OTHER PACKAGES
 const connectDB = require('./db/connectDB');
@@ -34,11 +31,8 @@ app.use(helment());
 // USE ROUTES
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/auth', authRoute);
-<<<<<<< HEAD
 app.use('/api/v1/comment', commentRoute);
-=======
 app.use('/api/v1/user', userRoutes);
->>>>>>> e961795e48470651e60137757c92cb74b3ba5762
 
 // Home route
 app.get('/', (req,res) =>{
