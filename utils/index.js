@@ -1,4 +1,4 @@
-
+const {checkPermission} = require('./checkPermissions');
 const {
     createJwtToken,
     verifyToken,
@@ -10,6 +10,7 @@ const {
 
 
 module.exports ={
+    checkPermission,
     createJwtToken,
     verifyToken,
     attachCookiesToResponse,
