@@ -22,7 +22,6 @@ const createComment = async (req, res) => {
     });
     res.status(StatusCodes.CREATED).json({success: true, newComment});
 }
-
 const getAllComments = async (req, res) => {
     const { postId } = req.params;
     const getComments = await Comment.find({post: postId});
@@ -30,6 +29,16 @@ const getAllComments = async (req, res) => {
         throw new CustomApiError.NotFoundError(`No comments found for post ${postId}`);
     }
     res.status(StatusCodes.OK).json({success: true, getComments});
+}
+
+const getSingleComment = async (req, res) => {
+    const { commentId } = req.params;
+
+    const getComment = await Comment.findById(commentId).populate('user post', '-password');
+    if(!getComment) {
+        throw new CustomApiError.NotFoundError(`No comment found for id ${commentId}`);
+    }
+    res.status(StatusCodes.OK).json({success: true, getComment});
 }
 
 const deleteComment = async (req, res) => {
@@ -53,5 +62,6 @@ const deleteComment = async (req, res) => {
 module.exports = {
     createComment,
     getAllComments,
+    getSingleComment,
     deleteComment
 }
