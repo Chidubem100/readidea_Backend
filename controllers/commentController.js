@@ -2,6 +2,8 @@
 const Comment = require('../models/Comment');
 const { StatusCodes } = require('http-status-codes');
 const CustomApiError = require('../errors/index');
+const { checkPermission } = require('../utils');
+
 
 const createComment = async (req, res) => {
     const {
@@ -34,10 +36,18 @@ const getAllComments = async (req, res) => {
 const getSingleComment = async (req, res) => {
     const { commentId } = req.params;
 
-    const getComment = await Comment.findById(commentId).populate('user post', '-password');
+    const getComment = await Comment.findById(commentId).populate({
+        path: 'user', 
+        select: 'username'
+    })
+    .populate({
+        path: 'post'
+    });
+
     if(!getComment) {
         throw new CustomApiError.NotFoundError(`No comment found for id ${commentId}`);
     }
+
     res.status(StatusCodes.OK).json({success: true, getComment});
 }
 
@@ -54,6 +64,8 @@ const deleteComment = async (req, res) => {
     if(!comment.user._id.equals(userId)){
         throw new CustomApiError.UnauthorizedError('You are not authorized to delete this comment');
     }
+
+    
     await comment.remove();
     res.status(StatusCodes.OK).json({success: true, message: 'Comment deleted'});
 

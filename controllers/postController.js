@@ -55,7 +55,7 @@ const getAllPosts = async (req, res) => {
             ]
         }
 
-        const posts = await Post.find(query)
+        const posts = await Post.find(query).populate({path: 'user', select:'username'})
         res.status(StatusCodes.OK).json({success: true, nbOfHits:posts.length, posts });
 
 }
@@ -67,7 +67,13 @@ const getPost = async (req, res) => {
         params: { id: postId },
     } = req;
     
-    const post = await Post.findOne({_id: postId, createdBy:userId})
+    const post = await Post.findOne({_id: postId, createdBy:userId}).populate({
+        path: 'user', 
+        select: 'username email'
+    })
+    .populate({
+        path: 'comment'
+    });
 
     if(!post) {    
         throw new CustomApiError.NotFoundError(`Post not found with id ${postId}`);    

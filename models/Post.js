@@ -33,7 +33,23 @@ const PostSchema = new Schema({
         ref: 'User',
         required: true,
     },
-}, {timestamps: true});
+},{
+    timestamps: true, 
+    toJSON: {virtuals:true}, 
+    toObject: {virtuals:true}
+});
+
+PostSchema.virtual('comment',{
+    ref: 'Comment',
+    justOne: false,
+    foreignField: 'post',
+    localField: '_id'
+});
+
+// this deletes all comment associated to a post when deleted
+PostSchema.pre('remove', async function(next){
+    await this.model('Comment').deleteMany({post: this._id});
+});
 
 module.exports = mongoose.model('Post', PostSchema);
 
