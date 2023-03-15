@@ -22,43 +22,28 @@ const createPost = async (req, res) => {
 
 // Get all posts
 const getAllPosts = async (req, res) => {
-    // Queries {title, author, genre, category}
-    const titleQ = req.query.bookTitle;
-    const authorQ = req.query.authorName;
-    const genreQ = req.query.genres;
-    const categoryQ = req.query.bookCategory;
-    const query = {};
-  
-        if(titleQ) {
-            query.$or = [
-                {
-                    "bookTitle" : { $regex: titleQ, $options: 'i'}
-                }
-            ]
-        }
-        if(authorQ) {
-            query.$or = [
-                {
-                    "authorName" : { $regex: authorQ, $options: 'i'}
-                }]
-        }
-        if(genreQ) {
-            query.$or = [
-                {
-                    "genres" : { $regex: genreQ, $options: 'i'}
-                }
-            ]
-        }
-        if(categoryQ) {
-            query.$or = [
-                {
-                    "bookCategory" : { $regex: categoryQ, $options: 'i'}
-                }
-            ]
-        }
 
-        const posts = await Post.find(query).populate({path: 'user', select:'username'})
-        res.status(StatusCodes.OK).json({success: true, nbOfHits:posts.length, posts });
+    const {title,author, genre, category} = req.query;
+    const queryObject = {};
+
+    if(title){
+        queryObject.bookTitle = {$regex: title, $options: 'i'};
+        
+    }
+    if(author){
+        queryObject.authorName = {$regex: author, $options: 'i'}
+    }
+    if(genre && genre !== 'all'){
+        queryObject.genres = genre;
+    }
+    if(category && category !== 'all'){
+        queryObject.bookCategory = category;
+    }
+    
+    const result = Post.find(queryObject).sort('-createdAt');
+
+    const posts = await result.populate({path: 'user', select:'username'});
+    res.status(StatusCodes.OK).json({success: true, nbOfHits:posts.length, posts });
 
 }
 
