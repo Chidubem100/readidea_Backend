@@ -6,6 +6,9 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helment = require('helmet');
+const Cloudinary = require('cloudinary').v2;
+
+const fileUpload = require('express-fileupload');
 const app = express();
 
 // Routes
@@ -23,7 +26,9 @@ const notFound = require('./middlewares/notfound');
 
 // APP CONFIG
 app.use(express.json());
+app.use(express.static('./public'));
 app.use(morgan('tiny'));
+app.use(fileUpload({useTempFiles: true}));
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(cors());
 app.use(helment());
