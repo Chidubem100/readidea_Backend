@@ -7,7 +7,8 @@ const {
     getAllPosts,
     updatePost,
     getUserPost,
-    deletePost
+    deletePost,
+    uploadImg
 } = require('../controllers/postController');
 
 router.route('/').get(getAllPosts).post(authenticate,createPost);
@@ -18,6 +19,7 @@ router.route('/:id')
     .patch(authenticate,updatePost)
     .delete(authenticate,deletePost)
 
+router.route('/uploads').post(authenticate, uploadImg);    
 // Upload image using Cloudinary
 
 module.exports = router

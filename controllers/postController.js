@@ -1,7 +1,9 @@
-
+const fs = require('fs');
+const path = require('path');
 const Post  = require('../models/Post');
 const { StatusCodes } = require('http-status-codes');
 const CustomApiError = require('../errors/index');  
+
 
 // Create a new post
 const createPost = async (req, res) => {
@@ -139,13 +141,38 @@ const deletePost = async (req, res) => {
     res.status(StatusCodes.OK).json({success: true, message: 'Post deleted successfully'});
 }
 
+const uploadImg = async(req,res) =>{
+    if(!req.files){
+        throw new CustomApiError.BadRequestError('No file upload');
+    }
+    
+    const postImg = req.files.image;
+
+    if(!postImg.mimetype.startsWith('image')){
+        throw new CustomApiError.BadRequestError('Please upload images only');
+    }
+
+    // check size of image
+    const maxSize = 1024 * 1024;
+
+    if(postImg.size > maxSize){
+        throw new CustomApiError.BadRequestError('Image size should be less than 1MB')
+    }
+
+    const imagePath = path.join(__dirname, '../public/uploads/' + `${postImg.name}`);
+    await postImg.mv(imagePath);
+
+    return res.status(StatusCodes.OK).json({ image:{src:`/uploads/${postImg.name}`}})
+};
+
 module.exports = {
     createPost,
     getAllPosts,
     getPost,
     updatePost,
     getUserPost,
-    deletePost
+    deletePost,
+    uploadImg,
 }
 
 // Path: routes\api\posts.js
