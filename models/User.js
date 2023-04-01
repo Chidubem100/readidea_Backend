@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const validator = require('validator') //email validator
 const bcrypt = require('bcryptjs');
-
+const crypto = require('crypto');
 
 const UserSchema = new Schema({
     email : {
@@ -38,10 +38,11 @@ const UserSchema = new Schema({
         default: 'user',
         required: true,
         enum: ['user', 'admin'],
-    }
+    },
+    passwordResetToken: String,
+    passwordResetExpires: Date
 });
 
-// module.exports = mongoose.model('User', UserSchema);
 
 UserSchema.pre('save', async function(){
     if(!this.isModified('password')) return;
@@ -53,6 +54,16 @@ UserSchema.methods.comparePassword = async function(candidatePassword){
     const isMatch = await bcrypt.compare(candidatePassword, this.password)
     return isMatch;
 }
+
+UserSchema.methods.createPasswordResetToken = async function() {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    return resetToken;
+}
+
+
+
 
 
 module.exports = mongoose.model('User', UserSchema);

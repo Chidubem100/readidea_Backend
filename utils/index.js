@@ -5,6 +5,10 @@ const {
     attachCookiesToResponse
 } = require('./jwt');
 
+const {
+    sendEmail
+} = require('./nodemailer');
+
 
 
 
@@ -14,4 +18,5 @@ module.exports ={
     createJwtToken,
     verifyToken,
     attachCookiesToResponse,
+    sendEmail
 }

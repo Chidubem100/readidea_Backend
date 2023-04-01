@@ -8,7 +8,9 @@ const {
     getSingleUser, // get
     updateProfile, // patch
     showCurrentUser, //get
-    changePassword //patch
+    changePassword, //patch
+    token, //post
+    resetPassword, //patch
 } = require('../controllers/userController');
 
 
@@ -30,6 +32,15 @@ router
 router
     .route('/profile/:id')
     .get(authenticate,getSingleUser)
+
+router
+    .route('/token')
+    .post(token);
+
+router
+    .route('/resetPassword/:token')
+    .patch(resetPassword);
+
 
 
 module.exports = router;
