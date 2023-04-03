@@ -9,7 +9,7 @@ const {
     sendEmail
 } = require('./nodemailer');
 
-
+const sendVerificationEmail = require('./sendVerificationLink');
 
 
 
@@ -18,5 +18,6 @@ module.exports ={
     createJwtToken,
     verifyToken,
     attachCookiesToResponse,
-    sendEmail
+    sendEmail,
+    sendVerificationEmail,
 }

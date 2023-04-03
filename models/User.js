@@ -39,8 +39,22 @@ const UserSchema = new Schema({
         required: true,
         enum: ['user', 'admin'],
     },
-    passwordResetToken: String,
-    passwordResetExpires: Date
+    verificationToken: {
+        type: String
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationDate: {
+        type: Date
+    },
+    passwordResetToken: {
+        type: String
+    },
+    passwordResetExpires:{
+        type: String
+    }
 });
 
 
