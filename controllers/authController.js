@@ -1,7 +1,9 @@
-const {attachCookiesToResponse} = require('../utils/index');
+const {attachCookiesToResponse, sendVerificationEmail} = require('../utils/index');
 const User = require('../models/User');
 const CustomApiError = require('../errors/index');
 const {StatusCodes} = require('http-status-codes');
+const crypto = require('crypto');
+
 
 
 const register = async(req,res) =>{
@@ -25,16 +27,56 @@ const register = async(req,res) =>{
     const isFirstUser = await User.countDocuments({}) === 0;
     const role = isFirstUser ? 'admin' : 'user'
 
+    const verificationToken = crypto.randomBytes(40).toString('hex');
+    
 
-    const user = await User.create({email, username, password, role});
+    const user = await User.create({email, username, password, role, verificationToken});
 
+    const origin = 'http://localhost:3000' // will still be changed
+
+    await sendVerificationEmail({
+        username: user.username,
+        email: user.email,
+        verificationToken: user.verificationToken,
+        origin
+    });
+    
     console.log(user)
     
-    const tokenUser = {username: user.username, email: user.email, role: user.role, userId: user._id};
+    res.status(StatusCodes.CREATED)
+    .json({
+        success: true, 
+        msg: 'Please check your email to verify your account', 
+        // verificationToken: user.verificationToken
+    }); 
+}
 
-    attachCookiesToResponse({res, user:tokenUser});
+const verifyEmail = async(req,res) =>{
 
-    res.status(StatusCodes.CREATED).json({success: true, user:tokenUser}); 
+    const {email, verificationToken} = req.body;
+
+    if(!email){
+        throw new CustomApiError.BadRequestError('Please provide the needed values')
+    }
+
+    const user = await User.findOne({email});
+
+    if(!user){
+        throw new CustomApiError.UnauthenticatedError('Verification failed!');
+    }
+
+    if(user.verificationToken !== verificationToken){
+        throw new CustomApiError.UnauthenticatedError('Verification failed!!!');
+    }
+
+    user.isVerified = true,
+    user.verificationDate =  Date.now(),
+    user.verificationToken = ''
+
+    await user.save();
+    
+    console.log(user)
+    res.status(200).json({msg: 'Email verified'});
 }
 
 const login = async(req,res) =>{
@@ -54,16 +96,15 @@ const login = async(req,res) =>{
         throw new CustomApiError.BadRequestError(`Invalid password, check and try again`)
     }
 
+    if(!user.isVerified){
+        throw new CustomApiError.BadRequestError(`Please verify your email`)
+    }
+
     const userToken = {username: user.username, email: user.email, role: user.role, userId: user._id};
     attachCookiesToResponse({res, user:userToken});
 
     res.status(StatusCodes.OK).json({success:true, user:userToken});
-    
-    // check if the values are provided
-    // find the user with the email and check it exist
-    // compare the password using the compare function created in the model
-    // create usertoken and attach it to the cookies
-    // send response
+
 }
 
 const logout = async(req,res) =>{
@@ -78,4 +119,5 @@ module.exports = {
     register,
     login,
     logout,
+    verifyEmail
 }
