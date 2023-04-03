@@ -5,11 +5,10 @@ const {
     attachCookiesToResponse
 } = require('./jwt');
 
-const {
-    sendEmail
-} = require('./nodemailer');
 
 const sendVerificationEmail = require('./sendVerificationLink');
+
+const sendResetPasswordToken = require('./sendResetPasswordToken');
 
 
 
@@ -18,6 +17,6 @@ module.exports ={
     createJwtToken,
     verifyToken,
     attachCookiesToResponse,
-    sendEmail,
     sendVerificationEmail,
+    sendResetPasswordToken
 }

@@ -1,6 +1,5 @@
+const {attachCookiesToResponse, sendResetPasswordToken} = require('../utils/index');
 const User = require('../models/User');
-const {attachCookiesToResponse,
-        sendEmail} = require('../utils');
 const {StatusCodes} = require('http-status-codes');
 const CustomApiError = require('../errors');
 const crypto = require('crypto');
@@ -93,17 +92,16 @@ const token = async(req,res) =>{
     const token = await user.createPasswordResetToken();
     await user.save();
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/user/resetPassword/${token}`;
+    const origin = 'http://localhost:5000' // will still be changed
 
-    const message = {
-        to: user.email,
-        subject: 'Password reset token',
-        html: `<p>Please click on the link below to reset your password</p> <a href="${resetUrl}">Reset Password</a>`
-    }
+    await sendResetPasswordToken({
+        username: user.username,
+        email: user.email,
+        resetPasswordToken: user.passwordResetToken,
+        origin
+    });
 
-    await sendEmail(message);
-
-    res.status(StatusCodes.OK).json({msg: 'Token sent to ' + user.email, token});
+    res.status(StatusCodes.OK).json({msg: 'Token sent to ' + user.email});
 };
 
 // reset password
