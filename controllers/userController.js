@@ -1,4 +1,4 @@
-const {attachCookiesToResponse} = require('../utils');
+const {attachCookiesToResponse } = require('../utils/index');
 const User = require('../models/User');
 const {StatusCodes} = require('http-status-codes');
 const CustomApiError = require('../errors');
