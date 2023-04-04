@@ -1,4 +1,4 @@
-const {attachCookiesToResponse, sendResetPasswordToken} = require('../utils/index');
+const {attachCookiesToResponse } = require('../utils/index');
 const User = require('../models/User');
 const {StatusCodes} = require('http-status-codes');
 const CustomApiError = require('../errors');
@@ -75,9 +75,6 @@ const changePassword = async(req,res) =>{
 const showCurrentUser = async(req,res) =>{
     res.status(StatusCodes.OK).json({ user:req.user })
 };
-
-
-
 
 module.exports = {
     getAllUsers,
