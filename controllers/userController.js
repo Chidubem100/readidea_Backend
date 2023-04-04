@@ -76,66 +76,6 @@ const showCurrentUser = async(req,res) =>{
     res.status(StatusCodes.OK).json({ user:req.user })
 };
 
-// reset password token
-const token = async(req,res) =>{
-    const {email} = req.body;
-    if(!email){
-        throw new CustomApiError.BadRequestError('Please provide the needed values')
-    }
-
-    const user = await User.findOne({email});
-
-    if(!user){
-        throw new CustomApiError.BadRequestError('No user with email ' + email);
-    }
-
-    const token = await user.createPasswordResetToken();
-    await user.save();
-
-    const origin = 'http://localhost:5000' // will still be changed
-
-    await sendResetPasswordToken({
-        username: user.username,
-        email: user.email,
-        resetPasswordToken: user.passwordResetToken,
-        origin
-    });
-
-    res.status(StatusCodes.OK).json({msg: 'Token sent to ' + user.email});
-};
-
-// reset password
-const resetPassword = async(req,res) =>{
-    const {
-        body: { password },
-        params: { token },
-    } = req;
-
-    if(!password){
-        throw new CustomApiError.BadRequestError('Please provide the needed values')
-    }
-
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await User.findOne({passwordResetToken: hashedToken, passwordResetExpires: {$gt: Date.now()}});
-
-    if(!user){
-        throw new CustomApiError.BadRequestError('Token is invalid or has expired')
-    }
-
-    user.password = password;
-    user.passwordResetToken = null;
-    user.passwordResetExpires = null;
-    await user.save();
-
-    res.status(StatusCodes.OK).json({msg: 'Password updated successfully'});
-};
-
-
-
-
-
-
 
 module.exports = {
     getAllUsers,
@@ -143,6 +83,4 @@ module.exports = {
     updateProfile,
     changePassword,
     showCurrentUser,
-    token,
-    resetPassword
 };

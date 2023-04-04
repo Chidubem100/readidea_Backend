@@ -8,7 +8,6 @@ const {
 
 const sendVerificationEmail = require('./sendVerificationLink');
 
-const sendResetPasswordToken = require('./sendResetPasswordToken');
 
 
 
@@ -18,5 +17,4 @@ module.exports ={
     verifyToken,
     attachCookiesToResponse,
     sendVerificationEmail,
-    sendResetPasswordToken
 }
