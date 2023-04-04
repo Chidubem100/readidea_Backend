@@ -1,6 +1,5 @@
 const User = require('../models/User');
-const {attachCookiesToResponse,
-        sendEmail} = require('../utils');
+const {attachCookiesToResponse} = require('../utils');
 const {StatusCodes} = require('http-status-codes');
 const CustomApiError = require('../errors');
 const crypto = require('crypto');
@@ -76,8 +75,6 @@ const changePassword = async(req,res) =>{
 const showCurrentUser = async(req,res) =>{
     res.status(StatusCodes.OK).json({ user:req.user })
 };
-
-
 
 module.exports = {
     getAllUsers,
