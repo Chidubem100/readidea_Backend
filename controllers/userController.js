@@ -1,5 +1,5 @@
-const User = require('../models/User');
 const {attachCookiesToResponse} = require('../utils');
+const User = require('../models/User');
 const {StatusCodes} = require('http-status-codes');
 const CustomApiError = require('../errors');
 const crypto = require('crypto');
