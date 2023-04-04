@@ -7,7 +7,8 @@ const {
 
 
 const sendVerificationEmail = require('./sendVerificationLink');
-
+const sendResetPasswordEmail = require('./sendResetPasswordToken');
+const createHash = require('./createHash');
 
 
 
@@ -17,4 +18,6 @@ module.exports ={
     verifyToken,
     attachCookiesToResponse,
     sendVerificationEmail,
+    sendResetPasswordEmail,
+    createHash,
 }

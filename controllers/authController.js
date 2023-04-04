@@ -1,4 +1,4 @@
-const {attachCookiesToResponse, sendVerificationEmail} = require('../utils/index');
+const {attachCookiesToResponse, sendVerificationEmail,createHash,sendResetPasswordEmail} = require('../utils/index');
 const User = require('../models/User');
 const CustomApiError = require('../errors/index');
 const {StatusCodes} = require('http-status-codes');
@@ -107,6 +107,62 @@ const login = async(req,res) =>{
 
 }
 
+// reset password token
+const forgotPassword = async(req,res) =>{
+    const {email} = req.body;
+    if(!email){
+        throw new CustomApiError.BadRequestError('Please provide the needed values')
+    }
+
+    const user = await User.findOne({email});
+
+    if(user){
+        const passwordResetToken = crypto.randomBytes(70).toString('hex');
+
+        const origin = 'http://localhost:3000' // will still be changed
+
+        await sendResetPasswordEmail({
+            username: user.username,
+            email: user.email,
+            token: user.passwordResetToken,
+            origin
+        });
+
+        const tenMinutes = 1000 * 60 * 10;
+        const passwordResetExpires = new Date(Date.now() + tenMinutes)
+
+        user.passwordResetToken =  createHash(passwordResetToken)
+        user.passwordResetExpires = passwordResetExpires
+
+        await user.save();
+    }
+
+    res.status(StatusCodes.OK).json({msg: 'Please check your email for password reset link'});
+};
+
+// reset password
+const resetPassword = async(req,res) =>{
+    const {token, email, password} = req.body
+
+    if(!password || !email || !token){
+        throw new CustomApiError.BadRequestError('Please provide the needed values')
+    }
+
+    const user = await User.findOne({email});
+
+    if(user){
+        const currentDate =  new Date();
+
+        if(user.passwordResetToken === createHash(token) && user.passwordResetExpires > currentDate){
+            user.password = password
+            user.passwordResetToken = null
+            user.passwordResetExpires = null
+
+            await user.save();
+        }
+    }
+};
+
 const logout = async(req,res) =>{
     res.cookie('token', 'logout',{
         httpOnly: true,
@@ -115,9 +171,13 @@ const logout = async(req,res) =>{
     res.status(StatusCodes.OK).json({msg:'You have successfully logged out'})
 }
 
+
+
 module.exports = {
     register,
     login,
     logout,
-    verifyEmail
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
 }
