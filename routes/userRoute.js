@@ -9,8 +9,6 @@ const {
     updateProfile, // patch
     showCurrentUser, //get
     changePassword, //patch
-    token, //post
-    resetPassword, //patch
 } = require('../controllers/userController');
 
 
@@ -33,13 +31,6 @@ router
     .route('/profile/:id')
     .get(authenticate,getSingleUser)
 
-router
-    .route('/token')
-    .post(token);
-
-router
-    .route('/resetPassword/:token')
-    .patch(resetPassword);
 
 
 

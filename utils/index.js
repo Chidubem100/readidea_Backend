@@ -10,7 +10,8 @@ const {
 } = require('./nodemailer');
 
 const sendVerificationEmail = require('./sendVerificationLink');
-
+const sendResetPasswordEmail = require('./sendResetPasswordToken');
+const createHash = require('./createHash');
 
 
 module.exports ={
@@ -20,4 +21,6 @@ module.exports ={
     attachCookiesToResponse,
     sendEmail,
     sendVerificationEmail,
+    sendResetPasswordEmail,
+    createHash,
 }
