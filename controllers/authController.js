@@ -3,6 +3,7 @@ const User = require('../models/User');
 const CustomApiError = require('../errors/index');
 const {StatusCodes} = require('http-status-codes');
 const crypto = require('crypto');
+const { STATUS_CODES } = require('http');
 
 
 
@@ -87,6 +88,7 @@ const login = async(req,res) =>{
     }
 
     const user = await User.findOne({email});
+    
     if(!user){
         throw new CustomApiError.NotFoundError(`User doesn't exist, Please sign up`);
     }
@@ -108,59 +110,72 @@ const login = async(req,res) =>{
 }
 
 // reset password token
+
 const forgotPassword = async(req,res) =>{
     const {email} = req.body;
+  
     if(!email){
-        throw new CustomApiError.BadRequestError('Please provide the needed values')
+        throw new CustomApiError.BadRequestError('Please provide a valid email address');
     }
-
+  
     const user = await User.findOne({email});
 
+  
     if(user){
-        const passwordResetToken = crypto.randomBytes(70).toString('hex');
-
-        const origin = 'http://localhost:3000' // will still be changed
-
+      const passwordResetToken = crypto.randomBytes(70).toString('hex');
+  
+      
+  
+        const origin = 'http://localhost:3000'
         await sendResetPasswordEmail({
-            username: user.username,
+            name: user.name,
             email: user.email,
-            token: user.passwordResetToken,
-            origin
+            token: passwordResetToken,
+            origin,
         });
-
-        const tenMinutes = 1000 * 60 * 10;
-        const passwordResetExpires = new Date(Date.now() + tenMinutes)
-
-        user.passwordResetToken =  createHash(passwordResetToken)
-        user.passwordResetExpires = passwordResetExpires
-
-        await user.save();
+  
+  
+      const tenMins = 1000 * 60 * 10;
+      const passwordResetExpires = new Date(Date.now() + tenMins);
+      
+      user.passwordResetToken = createHash(passwordResetToken)
+      user.passwordResetExpires = passwordResetExpires
+  
+      await user.save();
+        // res
+        //     .status(StatusCodes.BAD_REQUEST)
+        //     .json({
+        //         user:user,
+        //         passwordResetToken
+        //     });
     }
+    res.status(200).json({msg: `Please check your email for rest password link`});
+}
 
-    res.status(StatusCodes.OK).json({msg: 'Please check your email for password reset link'});
-};
-
-// reset password
-const resetPassword = async(req,res) =>{
-    const {token, email, password} = req.body
-
-    if(!password || !email || !token){
-        throw new CustomApiError.BadRequestError('Please provide the needed values')
+const resetPassword = async (req, res) => {
+    const { token, email, password } = req.body;
+    if (!token || !email || !password) {
+      throw new CustomApiError.BadRequestError('Please provide all values')
     }
 
     const user = await User.findOne({email});
 
-    if(user){
-        const currentDate =  new Date();
+    if (user) {
+      const currentDate = new Date();
+        
+        if(user.passwordResetToken === createHash(token) && user.passwordResetExpires > currentDate) {
 
-        if(user.passwordResetToken === createHash(token) && user.passwordResetExpires > currentDate){
-            user.password = password
-            user.passwordResetToken = null
-            user.passwordResetExpires = null
-
+            user.password = password;
+            user.passwordResetToken = null;
+            user.passwordResetExpires = null;
             await user.save();
+
+            res.status(200).json({msg: 'Password successfully reseted'});
         }
+
+    
     }
+  
 };
 
 const logout = async(req,res) =>{

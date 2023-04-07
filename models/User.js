@@ -53,7 +53,7 @@ const UserSchema = new Schema({
         type: String
     },
     passwordResetExpires:{
-        type: String
+        type: Date
     }
 });
 
