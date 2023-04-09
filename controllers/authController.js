@@ -3,7 +3,7 @@ const User = require('../models/User');
 const CustomApiError = require('../errors/index');
 const {StatusCodes} = require('http-status-codes');
 const crypto = require('crypto');
-const { STATUS_CODES } = require('http');
+const Token = require('../models/token');
 
 
 
@@ -102,8 +102,34 @@ const login = async(req,res) =>{
         throw new CustomApiError.BadRequestError(`Please verify your email`)
     }
 
+    let refreshToken = '';
+
+    const existingToken = await Token.findOne({user: user._id});
+    if(existingToken){
+        const {isValid} = existingToken;
+        if(!isValid){
+            throw new CustomApiError.UnauthorizedError('your are temporarily restricted from this app.')
+        }
+
+        refreshToken = existingToken.refreshToken;
+
+        const userToken = {username: user.username, email: user.email, role: user.role, userId: user._id};
+        attachCookiesToResponse({res, user:userToken, refreshToken});
+
+        res.status(StatusCodes.OK).json({success:true, user:userToken});
+        return;
+    }
+
+    refreshToken = crypto.randomBytes(40).toString('hex');
+
+    const userAgent = req.headers['user-agent']
+
+    const userT = {refreshToken,userAgent,user:user._id};
+    
+    await Token.create(userT);
+    
     const userToken = {username: user.username, email: user.email, role: user.role, userId: user._id};
-    attachCookiesToResponse({res, user:userToken});
+    attachCookiesToResponse({res, user:userToken, refreshToken});
 
     res.status(StatusCodes.OK).json({success:true, user:userToken});
 
@@ -179,7 +205,11 @@ const resetPassword = async (req, res) => {
 };
 
 const logout = async(req,res) =>{
-    res.cookie('token', 'logout',{
+    res.cookie('accessToken', 'logout',{
+        httpOnly: true,
+        expires: new Date(Date.now()),
+    });
+    res.cookie('refreshToken', 'logout',{
         httpOnly: true,
         expires: new Date(Date.now()),
     });
