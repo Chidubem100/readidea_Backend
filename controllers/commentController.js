@@ -81,7 +81,7 @@ const addReply = async (req, res) => {
     if(!reply) {
         throw new CustomApiError.BadRequestError('Please provide the needed fields');
     }
-    if(reply.length > 1000) {
+    if(reply.length > 100) {
         throw new CustomApiError.BadRequestError('Reply is too long');
     }
 
