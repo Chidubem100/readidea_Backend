@@ -1,5 +1,6 @@
 
 const Comment = require('../models/Comment');
+const Reply = require('../models/reply');
 const { StatusCodes } = require('http-status-codes');
 const CustomApiError = require('../errors/index');
 const { checkPermission } = require('../utils');
@@ -41,8 +42,8 @@ const getSingleComment = async (req, res) => {
         select: 'username'
     })
     .populate({
-        path: 'post'
-    });
+        path: 'post replies',
+    })
 
     if(!getComment) {
         throw new CustomApiError.NotFoundError(`No comment found for id ${commentId}`);
@@ -71,9 +72,59 @@ const deleteComment = async (req, res) => {
 
 }
 
+const addReply = async (req, res) => {
+    const {
+        user: { userId },
+        body: { reply, commentId },
+    } = req;
+
+    if(!reply) {
+        throw new CustomApiError.BadRequestError('Please provide the needed fields');
+    }
+    if(reply.length > 100) {
+        throw new CustomApiError.BadRequestError('Reply is too long');
+    }
+
+    const newReply = await Reply.create({
+        reply,
+        user: userId,
+        comment: commentId
+    });
+
+    res.status(StatusCodes.CREATED).json({success: true, newReply});
+
+}
+
+const deleteReply = async (req, res) => {
+    const {
+        params: { replyId },
+        user : { userId }
+    } = req;
+
+    const reply = Reply.findById(replyId);
+    if(!reply) {
+        throw new CustomApiError.NotFoundError(`No reply found for id ${replyId}`);
+    }
+    if(!reply.user._id.equals(userId)){
+        throw new CustomApiError.UnauthorizedError('You are not authorized to delete this reply');
+    }
+
+    await reply.remove();
+    res.status(StatusCodes.OK).json({success: true, message: 'Reply deleted'});
+}
+
+
+
+
+
+
+
+
 module.exports = {
     createComment,
     getAllComments,
     getSingleComment,
-    deleteComment
+    deleteComment,
+    addReply,
+    deleteReply
 }

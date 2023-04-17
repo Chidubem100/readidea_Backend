@@ -21,7 +21,25 @@ const CommentSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+},{ 
+    toJSON: {virtuals:true}, 
+    toObject: {virtuals:true}
 });
+
+CommentSchema.virtual('replies', {
+    ref: 'Reply',
+    localField: '_id',
+    foreignField: 'comment',
+    justOne: false,
+});
+
+CommentSchema.pre("remove", async function(next) {
+    await this.model("Reply").deleteMany({ comment: this._id });
+    next();
+});
+
+
+
 
 module.exports = mongoose.model('Comment', CommentSchema);
 
