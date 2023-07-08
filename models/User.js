@@ -39,6 +39,12 @@ const UserSchema = new Schema({
         required: true,
         enum: ['user', 'admin'],
     },
+    notifications: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Notification'
+        }
+    ],
     verificationToken: {
         type: String
     },

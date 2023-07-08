@@ -1,30 +1,56 @@
 
 const Comment = require('../models/Comment');
+const Notification = require('../models/Notification');
 const Reply = require('../models/reply');
+const User = require('../models/User');
+const Post = require('../models/Post');
 const { StatusCodes } = require('http-status-codes');
 const CustomApiError = require('../errors/index');
 const { checkPermission } = require('../utils');
-
+const { emitNotification } = require('../utils/socket');
 
 const createComment = async (req, res) => {
     const {
-        user: {userId},
-        body: {comment, postId}
+      user: { userId },
+      body: { comment, postId }
     } = req;
-    
-    if(!comment || !postId) {
-        throw new CustomApiError.BadRequestError('Please provide the needed fields');
+  
+    if (!comment || !postId) {
+      throw new CustomApiError.BadRequestError('Please provide the needed fields');
     }
-    if(comment.length > 1000) {
-        throw new CustomApiError.BadRequestError('Comment is too long');
+    if (comment.length > 1000) {
+      throw new CustomApiError.BadRequestError('Comment is too long');
     }
     const newComment = await Comment.create({
-        user: userId,
-        post: postId,
-        comment
+      user: userId,
+      post: postId,
+      comment
     });
-    res.status(StatusCodes.CREATED).json({success: true, newComment});
-}
+  
+    // Create notification
+    const newNotification = await Notification.create({
+      user: userId,
+      notification: `${req.user.username} commented on your post.`,
+      link: `/posts/${postId}`,
+    });
+
+  
+    // Emit notification to post owner
+    const post = await Post.findById(postId);
+    if(!post.user._id.equals(userId)) {
+        emitNotification(userId, newNotification);
+    }
+
+    // Push notification to user
+    const user = await User.findById(userId);
+    user.notifications.push(newNotification);
+    await user.save();
+
+    
+    
+  
+    res.status(StatusCodes.CREATED).json({ success: true, newComment });
+  };
 const getAllComments = async (req, res) => {
     const { postId } = req.params;
     const getComments = await Comment.find({post: postId});

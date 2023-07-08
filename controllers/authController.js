@@ -4,6 +4,7 @@ const CustomApiError = require('../errors/index');
 const {StatusCodes} = require('http-status-codes');
 const crypto = require('crypto');
 const Token = require('../models/token');
+// const { handleLogin } = require('../utils/socket');
 
 
 
@@ -130,6 +131,8 @@ const login = async(req,res) =>{
     
     const userToken = {username: user.username, email: user.email, role: user.role, userId: user._id};
     attachCookiesToResponse({res, user:userToken, refreshToken});
+
+    // handleLogin(req.app.get('io'), user._id);
 
     res.status(StatusCodes.OK).json({success:true, user:userToken});
 
